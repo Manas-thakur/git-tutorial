@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "git-tutorial"
+version = "1.0.0"
+description = "Interactive Git tutorial: learn, practice, and master Git from your terminal"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [
+    {name = "Git Tutorial"},
+]
+dependencies = [
+    "typer>=0.9",
+    "rich>=13.0",
+    "textual>=8.0",
+]
+
+[project.scripts]
+gittut = "git_tutorial:main"
+
+[tool.setuptools.packages.find]
+include = ["git_tutorial*"]
+
+[tool.setuptools.package-data]
+git_tutorial = ["content/**/*.md"]

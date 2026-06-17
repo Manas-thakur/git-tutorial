@@ -1,0 +1,178 @@
+import json
+from pathlib import Path
+from typing import Optional
+
+
+PROGRESS_FILE = Path.home() / ".git_tutorial_progress.json"
+
+
+def _xp_for_level(level: int) -> int:
+    return level * (level + 1) * 25
+
+
+def _level_from_xp(xp: int) -> tuple[int, int, int]:
+    level = 0
+    while True:
+        needed = _xp_for_level(level + 1)
+        if xp < needed:
+            break
+        level += 1
+    current = xp - _xp_for_level(level)
+    next_needed = _xp_for_level(level + 1) - _xp_for_level(level)
+    return level, current, next_needed
+
+
+class ProgressTracker:
+    def __init__(self):
+        self.data: dict = self._load()
+
+    def _load(self) -> dict:
+        if PROGRESS_FILE.exists():
+            try:
+                raw = PROGRESS_FILE.read_text()
+                return json.loads(raw) if raw.strip() else {}
+            except (json.JSONDecodeError, OSError):
+                return {}
+        return {}
+
+    def _save(self):
+        PROGRESS_FILE.write_text(json.dumps(self.data, indent=2, default=str))
+
+    def mark_complete(self, phase: int, topic: int):
+        key = f"phase_{phase}"
+        if key not in self.data:
+            self.data[key] = {}
+        self.data[key][str(topic)] = True
+        self._save()
+
+    def is_complete(self, phase: int, topic: int) -> bool:
+        return self.data.get(f"phase_{phase}", {}).get(str(topic), False)
+
+    def get_phase_progress(self, phase: int, total: int) -> tuple[int, int]:
+        completed = sum(
+            1 for k in self.data.get(f"phase_{phase}", {}) if self.data[f"phase_{phase}"][k]
+        )
+        return completed, total
+
+    def get_total_completed(self) -> int:
+        return sum(
+            sum(1 for v in phase_data.values() if v)
+            for key, phase_data in self.data.items()
+            if isinstance(phase_data, dict) and key.startswith("phase_")
+        )
+
+    def is_phase_unlocked(self, phase: int) -> bool:
+        if phase <= 1:
+            return True
+        from .content import discover_phases
+        phases = discover_phases()
+        prev = None
+        for p in phases:
+            if p.number == phase - 1:
+                prev = p
+                break
+        if not prev or not prev.topics:
+            return True
+        done, total = self.get_phase_progress(phase - 1, len(prev.topics))
+        if total == 0:
+            return True
+        pct = done / total
+        return pct >= 0.7
+
+    def add_xp(self, amount: int):
+        old_level = self.get_level()
+        self.data["_xp"] = self.data.get("_xp", 0) + amount
+        new_level = self.get_level()
+        self._save()
+        return new_level > old_level
+
+    def get_xp(self) -> int:
+        return self.data.get("_xp", 0)
+
+    def get_level(self) -> int:
+        return _level_from_xp(self.get_xp())[0]
+
+    def get_level_info(self) -> dict:
+        level, current, needed = _level_from_xp(self.get_xp())
+        return {
+            "level": level,
+            "xp_current": current,
+            "xp_needed": needed,
+            "xp_total": self.get_xp(),
+            "progress": current / needed if needed > 0 else 1.0,
+        }
+
+    def add_streak(self):
+        today = str(__import__("datetime").date.today())
+        streaks = self.data.setdefault("_streaks", [])
+        if not streaks or streaks[-1] != today:
+            streaks.append(today)
+            self._save()
+
+    def get_streak(self) -> int:
+        streaks = self.data.get("_streaks", [])
+        if not streaks:
+            return 0
+        today = __import__("datetime").date.today()
+        count = 0
+        for i in range(len(streaks) - 1, -1, -1):
+            expected = (today - __import__("datetime").timedelta(days=len(streaks) - 1 - i)).isoformat()
+            if streaks[i] == expected:
+                count += 1
+            else:
+                break
+        return count
+
+    def get_badges(self) -> list[dict]:
+        badges = []
+        completed = self.get_total_completed()
+        level = self.get_level()
+
+        if completed >= 1:
+            badges.append({"name": "First Commit", "desc": "Completed first topic"})
+        if completed >= 6:
+            badges.append({"name": "Getting Started", "desc": "Completed Phase 1"})
+        if completed >= 10:
+            badges.append({"name": "Branch Master", "desc": "Completed Phase 1-2"})
+
+        if level >= 3:
+            badges.append({"name": "Apprentice", "desc": f"Reached level {level}"})
+        if level >= 5:
+            badges.append({"name": "Git Warrior", "desc": f"Reached level {level}"})
+        if level >= 10:
+            badges.append({"name": "Git Sage", "desc": f"Reached level {level}"})
+
+        streak = self.get_streak()
+        if streak >= 3:
+            badges.append({"name": "On Fire", "desc": f"{streak}-day streak"})
+        if streak >= 7:
+            badges.append({"name": "Unstoppable", "desc": f"{streak}-day streak"})
+        if streak >= 30:
+            badges.append({"name": "Legendary", "desc": f"{streak}-day streak!"})
+
+        return badges
+
+    def set_bookmark(self, phase: int, topic: int, section_index: int = 0):
+        self.data["_bookmark"] = {"phase": phase, "topic": topic, "section": section_index}
+        self._save()
+
+    def get_bookmark(self) -> Optional[dict]:
+        return self.data.get("_bookmark")
+
+    def clear_bookmark(self):
+        self.data.pop("_bookmark", None)
+        self._save()
+
+    def record_quiz_attempt(self, phase: int, topic: int, correct: int, total: int):
+        key = "_mastery"
+        mastery = self.data.setdefault(key, {})
+        topic_key = f"{phase}.{topic}"
+        if topic_key not in mastery:
+            mastery[topic_key] = {"attempts": [], "last_reviewed": None}
+        mastery[topic_key]["attempts"].append({"correct": correct, "total": total})
+        mastery[topic_key]["last_reviewed"] = str(__import__("datetime").datetime.now())
+        self._save()
+
+    def reset(self):
+        self.data = {}
+        self._save()
