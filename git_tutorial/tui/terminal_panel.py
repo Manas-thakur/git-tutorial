@@ -1,6 +1,5 @@
 from textual.widgets import Static, Input, RichLog, Button
-from textual.widget import Widget
-from textual.containers import Horizontal, Vertical
+from textual.containers import Container, Horizontal, Vertical
 from textual.binding import Binding
 from textual.suggester import Suggester
 
@@ -38,7 +37,7 @@ class GitSuggester(Suggester):
         return None
 
 
-class TerminalPanel(Widget):
+class TerminalPanel(Container):
     BINDINGS = [
         Binding("f5", "run_command", "Run", show=False),
         Binding("f6", "run_status", "Status", show=False),
