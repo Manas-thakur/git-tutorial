@@ -82,6 +82,27 @@ class TutorialApp(App):
         border: solid $accent;
     }
 
+    TerminalPanel > #terminal-container {
+        height: 100%;
+    }
+
+    TerminalPanel #output-log {
+        height: 1fr;
+    }
+
+    TerminalPanel #shortcut-hints {
+        height: 1;
+    }
+
+    TerminalPanel #terminal-buttons {
+        dock: bottom;
+        height: auto;
+    }
+
+    TerminalPanel #cmd-input {
+        height: 1;
+    }
+
     StatusHeader {
         dock: bottom;
         height: 2;
