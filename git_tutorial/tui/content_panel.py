@@ -24,9 +24,6 @@ class ContentPanel(VerticalScroll):
     def compose(self):
         yield Static("", id="section-heading")
         yield Markdown("Select a topic from the sidebar", id="content-markdown")
-        with Horizontal(id="section-nav-buttons"):
-            yield Button("< Prev Section", id="prev-section-btn", variant="default")
-            yield Button("Next Section >", id="next-section-btn", variant="primary")
         with Horizontal(id="topic-nav-buttons"):
             yield Button("< Prev Topic", id="prev-topic-btn", variant="default")
             yield Button("Next Topic >", id="next-topic-btn", variant="primary")
@@ -70,11 +67,6 @@ class ContentPanel(VerticalScroll):
         self._update_nav_buttons()
 
     def _update_nav_buttons(self) -> None:
-        prev_sec = self.query_one("#prev-section-btn", Button)
-        next_sec = self.query_one("#next-section-btn", Button)
-        prev_sec.disabled = self._current_index == 0
-        next_sec.disabled = self._sections and self._current_index >= len(self._sections) - 1
-
         prev_topic = self.query_one("#prev-topic-btn", Button)
         next_topic = self.query_one("#next-topic-btn", Button)
         prev_topic.disabled = self._get_sibling_topic(-1) is None
@@ -103,11 +95,7 @@ class ContentPanel(VerticalScroll):
             self.app.post_message(TopicSelected(phase, topic))
 
     def on_button_pressed(self, event) -> None:
-        if event.button.id == "next-section-btn":
-            self.action_next_section()
-        elif event.button.id == "prev-section-btn":
-            self.action_prev_section()
-        elif event.button.id == "next-topic-btn":
+        if event.button.id == "next-topic-btn":
             self.action_next_topic()
         elif event.button.id == "prev-topic-btn":
             self.action_prev_topic()

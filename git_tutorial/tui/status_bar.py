@@ -16,7 +16,7 @@ class StatusHeader(Widget):
             yield Static(id="status-streak")
             yield Static(id="status-topics")
         with Horizontal(id="keybind-bar"):
-            yield Static("[dim]q:Quit ?:Help Ctrl+G:Cheatsheet Ctrl+Q:Quiz Ctrl+P:Search F5:Run[/]")
+            yield Static("[dim]q:Quit ?:Help Ctrl+B:Sidebar C:Content F5:Run[/]")
             yield Static(id="nav-hints", markup=True)
 
     def on_mount(self):

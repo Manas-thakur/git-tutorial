@@ -82,6 +82,38 @@ class TutorialApp(App):
         border: solid $accent;
     }
 
+    MainContainer.sidebar-collapsed > Sidebar {
+        display: none;
+    }
+
+    MainContainer.sidebar-collapsed > ContentPanel {
+        width: 60%;
+    }
+
+    MainContainer.sidebar-collapsed > TerminalPanel {
+        width: 40%;
+    }
+
+    MainContainer.content-collapsed > ContentPanel {
+        display: none;
+    }
+
+    MainContainer.content-collapsed > Sidebar {
+        width: 35%;
+    }
+
+    MainContainer.content-collapsed > TerminalPanel {
+        width: 65%;
+    }
+
+    MainContainer.sidebar-collapsed.content-collapsed > ContentPanel {
+        display: none;
+    }
+
+    MainContainer.sidebar-collapsed.content-collapsed > TerminalPanel {
+        width: 100%;
+    }
+
     TerminalPanel > #terminal-container {
         height: 100%;
     }
@@ -129,17 +161,6 @@ class TutorialApp(App):
         width: 15;
     }
 
-    #section-nav-buttons {
-        height: 3;
-        align: center middle;
-        margin: 1 0;
-    }
-
-    #section-nav-buttons > Button {
-        margin: 0 1;
-        min-width: 18;
-    }
-
     #topic-nav-buttons {
         height: 3;
         align: center middle;
@@ -171,6 +192,8 @@ class TutorialApp(App):
         Binding("ctrl+p", "search", "Search", show=True),
         Binding("ctrl+q", "quiz", "Quiz", show=True),
         Binding("ctrl+g", "cheatsheet", "Cheatsheet", show=True),
+        Binding("ctrl+b", "toggle_sidebar", "Sidebar", show=True),
+        Binding("c", "toggle_content_panel", "Content", show=True),
         Binding("r", "reset_progress", "Reset", show=False),
         Binding("?", "help", "Help", show=True),
     ]
@@ -181,6 +204,8 @@ class TutorialApp(App):
         self.sandbox = GitSandbox()
         self.current_phase = None
         self.current_topic = None
+        self.sidebar_collapsed = False
+        self.content_collapsed = False
 
     def compose(self) -> ComposeResult:
         yield Static("[bold]Git Interactive Tutorial[/]", id="title-bar")
@@ -218,6 +243,25 @@ class TutorialApp(App):
 
     def action_cheatsheet(self) -> None:
         self.push_screen(CheatSheetScreen())
+
+    def action_toggle_sidebar(self) -> None:
+        self.sidebar_collapsed = not self.sidebar_collapsed
+        self._sync_layout_state()
+
+    def action_toggle_content_panel(self) -> None:
+        self.content_collapsed = not self.content_collapsed
+        self._sync_layout_state()
+
+    def _sync_layout_state(self) -> None:
+        main = self.query_one(MainContainer)
+        if self.sidebar_collapsed:
+            main.add_class("sidebar-collapsed")
+        else:
+            main.remove_class("sidebar-collapsed")
+        if self.content_collapsed:
+            main.add_class("content-collapsed")
+        else:
+            main.remove_class("content-collapsed")
 
     def action_reset_progress(self) -> None:
         def on_confirm(confirmed: bool):
