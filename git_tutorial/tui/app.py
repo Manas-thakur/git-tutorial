@@ -134,7 +134,12 @@ class TutorialApp(App):
     }
 
     TerminalPanel #cmd-input {
-        height: 1;
+        height: 3;
+        margin: 0 1;
+    }
+
+    TerminalPanel #cmd-input:focus {
+        border: solid $success;
     }
 
     StatusHeader {

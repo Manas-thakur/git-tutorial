@@ -11,29 +11,29 @@ class GitSuggester(Suggester):
     def __init__(self, sandbox: GitSandbox):
         super().__init__()
         self.sandbox = sandbox
-        self._branch_cache: list[str] = []
 
     async def get_suggestion(self, value: str) -> str | None:
-        if not value.strip():
-            return None
-        parts = value.strip().split()
-        if len(parts) == 1 and not value.strip().endswith(" "):
-            prefix = parts[0].lower()
-            matches = [c for c in GIT_COMMANDS if c.startswith(prefix)]
-            if len(matches) == 1:
-                return f"git {matches[0]} "
-            if matches:
+        try:
+            if not value.strip():
                 return None
-            return None
-        if len(parts) >= 2 and parts[0].lower() in ("git",):
-            subcmd = parts[1].lower()
-            typed = parts[-1].lower() if not value.endswith(" ") else ""
-            if subcmd in ("switch", "checkout", "branch", "merge") and typed:
-                branches = self.sandbox.get_branches()
-                matches = [b for b in branches if b.startswith(typed)]
+            parts = value.strip().split()
+            if len(parts) == 1 and not value.strip().endswith(" "):
+                prefix = parts[0].lower()
+                matches = [c for c in GIT_COMMANDS if c.startswith(prefix)]
                 if len(matches) == 1:
-                    base = " ".join(parts[:-1]) + " "
-                    return f"{base}{matches[0]}"
+                    return f"git {matches[0]} "
+                return None
+            if len(parts) >= 2 and parts[0].lower() in ("git",):
+                subcmd = parts[1].lower()
+                typed = parts[-1].lower() if not value.endswith(" ") else ""
+                if subcmd in ("switch", "checkout", "branch", "merge") and typed:
+                    branches = self.sandbox.get_branches()
+                    matches = [b for b in branches if b.startswith(typed)]
+                    if len(matches) == 1:
+                        base = " ".join(parts[:-1]) + " "
+                        return f"{base}{matches[0]}"
+        except Exception:
+            pass
         return None
 
 
@@ -93,6 +93,9 @@ class TerminalPanel(Container):
             )
         else:
             header.update("[bold green]Scenario complete![/]")
+
+    def on_mount(self) -> None:
+        self.query_one("#cmd-input", Input).focus()
 
     def load_topic(self, topic, phase_number: int = 1) -> None:
         self._topic = topic

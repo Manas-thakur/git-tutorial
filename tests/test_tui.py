@@ -16,6 +16,13 @@ def clear_session():
     yield
 
 
+async def _defocus_input(pilot):
+    """Move focus away from the cmd-input by focusing the sidebar."""
+    from git_tutorial.tui.sidebar import Sidebar
+    sidebar = pilot.app.query_one(Sidebar)
+    sidebar.focus()
+
+
 @pytest.mark.asyncio
 async def test_app_starts():
     async with TutorialApp().run_test(size=(120, 40)) as pilot:
@@ -46,10 +53,27 @@ async def test_content_not_collapsed_by_default():
 
 
 @pytest.mark.asyncio
+async def test_input_auto_focused():
+    async with TutorialApp().run_test(size=(120, 40)) as pilot:
+        inp = pilot.app.query_one("#cmd-input")
+        assert inp.has_focus
+
+
+@pytest.mark.asyncio
+async def test_can_type_into_input():
+    async with TutorialApp().run_test(size=(120, 40)) as pilot:
+        await pilot.press("g", "i", "t", " ", "s", "t", "a", "t", "u", "s")
+        inp = pilot.app.query_one("#cmd-input")
+        assert inp.value == "git status"
+
+
+@pytest.mark.asyncio
 async def test_toggle_sidebar():
     async with TutorialApp().run_test(size=(120, 40)) as pilot:
         app = pilot.app
         main = app.query_one(MainContainer)
+
+        await _defocus_input(pilot)
 
         assert not app.sidebar_collapsed
         assert "sidebar-collapsed" not in main.classes
@@ -69,6 +93,8 @@ async def test_toggle_content():
         app = pilot.app
         main = app.query_one(MainContainer)
 
+        await _defocus_input(pilot)
+
         assert not app.content_collapsed
         assert "content-collapsed" not in main.classes
 
@@ -87,6 +113,8 @@ async def test_both_collapsed():
         app = pilot.app
         main = app.query_one(MainContainer)
 
+        await _defocus_input(pilot)
+
         await pilot.press("ctrl+b")
         await pilot.press("c")
         assert app.sidebar_collapsed
@@ -98,6 +126,7 @@ async def test_both_collapsed():
 @pytest.mark.asyncio
 async def test_help_screen():
     async with TutorialApp().run_test(size=(120, 40)) as pilot:
+        await _defocus_input(pilot)
         await pilot.press("?")
         assert isinstance(pilot.app.screen, HelpScreen)
         await pilot.press("escape")
