@@ -1,3 +1,0 @@
-[console_scripts]
-gittut = git_tutorial:main
-gittut-cli = git_tutorial.cli:app

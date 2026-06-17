@@ -21,3 +21,4 @@ Thumbs.db
 # Progress
 *.progress.json
 
+*.egg-info/
