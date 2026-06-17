@@ -42,16 +42,21 @@ def _parse_quiz_questions(content: str) -> list[QuizQuestion]:
     lines = content.splitlines()
 
     answer_map = {}
+    found_answers = False
     for line in lines:
         stripped = line.strip()
         m = re.match(r"\*\*Answers?\*\*:?\s*(.+)", stripped, re.IGNORECASE)
         if m:
+            found_answers = True
             for part in m.group(1).split(","):
                 part = part.strip()
                 m2 = re.match(r"(\d+)\s*[-.)]\s*([a-e])", part)
                 if m2:
                     answer_map[int(m2.group(1))] = ord(m2.group(2)) - ord("a")
             break
+
+    if not found_answers:
+        return []
 
     questions = []
     for i, line in enumerate(lines):

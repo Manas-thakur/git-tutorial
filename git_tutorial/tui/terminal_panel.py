@@ -199,7 +199,7 @@ class TerminalPanel(Widget):
     def action_run_log(self) -> None:
         log = self.query_one("#output-log", RichLog)
         log.write("[bold cyan]--- Log ---[/]")
-        r = self.sandbox.run_command("git log --oneline --graph --all --decorate 2>/dev/null | head -40")
+        r = self.sandbox.run_command("git log --oneline --graph --all --decorate -40")
         if r["success"] and r["stdout"]:
             log.write(r["stdout"].rstrip())
         else:

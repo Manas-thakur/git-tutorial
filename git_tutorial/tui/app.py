@@ -6,6 +6,8 @@ from textual.containers import Container
 
 from ..progress import ProgressTracker
 from ..sandbox import GitSandbox
+from ..session import SessionState, save_session, load_session
+from ..content import discover_phases
 from .sidebar import Sidebar, TopicSelected
 from .content_panel import ContentPanel
 from .terminal_panel import TerminalPanel
@@ -189,7 +191,7 @@ class TutorialApp(App):
     BINDINGS = [
         Binding("q", "quit", "Quit", show=True),
         Binding("f5", "run_command", "Run", show=True),
-        Binding("ctrl+p", "search", "Search", show=True),
+        Binding("ctrl+f", "search", "Search", show=True),
         Binding("ctrl+q", "quiz", "Quiz", show=True),
         Binding("ctrl+g", "cheatsheet", "Cheatsheet", show=True),
         Binding("ctrl+b", "toggle_sidebar", "Sidebar", show=True),
@@ -204,8 +206,9 @@ class TutorialApp(App):
         self.sandbox = GitSandbox()
         self.current_phase = None
         self.current_topic = None
-        self.sidebar_collapsed = False
-        self.content_collapsed = False
+        self._session = load_session()
+        self.sidebar_collapsed = self._session.sidebar_collapsed
+        self.content_collapsed = self._session.content_collapsed
 
     def compose(self) -> ComposeResult:
         yield Static("[bold]Git Interactive Tutorial[/]", id="title-bar")
@@ -218,8 +221,23 @@ class TutorialApp(App):
         sidebar = self.query_one(Sidebar)
         sidebar.progress = self.progress
         sidebar.load_phases()
+        if self._session.is_valid():
+            for p in discover_phases():
+                for t in p.topics:
+                    if p.number == self._session.phase and t.number == self._session.topic:
+                        self._load_topic(p, t)
+                        break
+        self._sync_layout_state()
 
     def action_quit(self) -> None:
+        phase_num = self.current_phase.number if self.current_phase else None
+        topic_num = self.current_topic.number if self.current_topic else None
+        save_session(SessionState(
+            phase=phase_num,
+            topic=topic_num,
+            sidebar_collapsed=self.sidebar_collapsed,
+            content_collapsed=self.content_collapsed,
+        ))
         self.sandbox.cleanup()
         self.exit()
 
@@ -262,6 +280,12 @@ class TutorialApp(App):
             main.add_class("content-collapsed")
         else:
             main.remove_class("content-collapsed")
+        save_session(SessionState(
+            phase=self.current_phase.number if self.current_phase else None,
+            topic=self.current_topic.number if self.current_topic else None,
+            sidebar_collapsed=self.sidebar_collapsed,
+            content_collapsed=self.content_collapsed,
+        ))
 
     def action_reset_progress(self) -> None:
         def on_confirm(confirmed: bool):

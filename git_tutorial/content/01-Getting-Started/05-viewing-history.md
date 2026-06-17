@@ -209,3 +209,5 @@ a) `git log app.js`
 b) `git blame -L 42,42 app.js`
 c) `git show app.js`
 d) `git diff HEAD app.js`
+
+**Answers**: 1-b, 2-b, 3-b

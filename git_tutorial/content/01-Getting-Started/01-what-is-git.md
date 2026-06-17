@@ -133,3 +133,5 @@ a) To permanently store all project files
 b) To act as a cache for remote servers
 c) To let you selectively choose which changes to include in the next commit
 d) To replace the working directory
+
+**Answers**: 1-b, 2-c, 3-c

@@ -232,3 +232,5 @@ a) Converts all files to CRLF on checkout
 b) Converts CRLF to LF on commit, but does not touch files on checkout
 c) Disables line-ending conversion entirely
 d) Makes Git ignore all binary files
+
+**Answers**: 1-c, 2-b, 3-b

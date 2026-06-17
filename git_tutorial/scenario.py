@@ -33,34 +33,30 @@ def _run_setup(sandbox: GitSandbox, setup: list[str]) -> None:
 
 
 def _get_branches(sandbox: GitSandbox) -> list[str]:
-    r = sandbox.run_command("git branch")
+    r = sandbox._safe_run(["git", "branch"])
     if r["success"] and r["stdout"]:
         return [b.strip().lstrip("* ") for b in r["stdout"].splitlines() if b.strip()]
     return []
 
 
 def _get_commits(sandbox: GitSandbox) -> int:
-    r = sandbox.run_command("git log --oneline 2>/dev/null | wc -l")
+    r = sandbox._safe_run(["git", "log", "--oneline"])
     if r["success"] and r["stdout"]:
-        try:
-            return int(r["stdout"].strip())
-        except ValueError:
-            return 0
+        return len(r["stdout"].splitlines())
     return 0
 
 
 def _has_merge_commit(sandbox: GitSandbox) -> bool:
-    r = sandbox.run_command("git log --oneline --merges -1")
+    r = sandbox._safe_run(["git", "log", "--oneline", "--merges", "-1"])
     return r["success"] and bool(r["stdout"].strip())
 
 
 def _file_exists(sandbox: GitSandbox, path: str) -> bool:
-    r = sandbox.run_command(f"test -f {path} && echo yes || echo no")
-    return "yes" in r["stdout"]
+    return (sandbox.repo_path / path).exists()
 
 
 def _git_modified(sandbox: GitSandbox) -> bool:
-    r = sandbox.run_command("git status --porcelain")
+    r = sandbox._safe_run(["git", "status", "--porcelain"])
     return r["success"] and bool(r["stdout"].strip())
 
 

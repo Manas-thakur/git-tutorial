@@ -251,3 +251,5 @@ a) `git rm passwords.json && git commit`
 b) `git rm --cached passwords.json && echo "passwords.json" >> .gitignore && git add .gitignore && git commit`
 c) `git reset --soft HEAD~1`
 d) `git restore --staged passwords.json`
+
+**Answers**: 1-c, 2-b, 3-b

@@ -192,3 +192,5 @@ a) Nothing; the files are lost forever
 b) Run `git checkout HEAD -- .` to restore all files from the last commit
 c) Push to a remote (since changes are already committed)
 d) The files are automatically restored from the index
+
+**Answers**: 1-b, 2-d, 3-b
