@@ -24,6 +24,8 @@ class QuizScreen(Screen):
         self.questions = []
         self.current_index = 0
         self.correct = 0
+        self._answered = False
+        self._advancing = False
 
     def compose(self) -> ComposeResult:
         yield Static("", id="quiz-header")
@@ -42,6 +44,7 @@ class QuizScreen(Screen):
         self._show_question()
 
     def _show_question(self) -> None:
+        self._answered = False
         if self.current_index >= len(self.questions):
             self._show_results()
             return
@@ -66,6 +69,11 @@ class QuizScreen(Screen):
 
         self.query_one("#quiz-feedback", RichLog).clear()
 
+    def _show_next_button(self) -> None:
+        opts = self.query_one("#quiz-options", Vertical)
+        opts.remove_children()
+        opts.mount(Button("Next Question", id="qopt-next", variant="primary"))
+
     def _show_results(self) -> None:
         self.query_one("#quiz-header", Static).update("[bold green]Quiz Complete![/]")
         self.query_one("#quiz-question", Static).update("")
@@ -84,9 +92,13 @@ class QuizScreen(Screen):
         self.app.pop_screen()
 
     def action_next(self) -> None:
+        if self._advancing:
+            return
+        self._advancing = True
         if self.current_index < len(self.questions):
             self.current_index += 1
             self._show_question()
+        self._advancing = False
 
     def action_answer_1(self) -> None:
         self._select_answer(0)
@@ -101,6 +113,9 @@ class QuizScreen(Screen):
         self._select_answer(3)
 
     def _select_answer(self, idx: int) -> None:
+        if self._answered:
+            return
+        self._answered = True
         if not self.questions or self.current_index >= len(self.questions):
             return
         q = self.questions[self.current_index]
@@ -112,9 +127,7 @@ class QuizScreen(Screen):
             self.correct += 1
         else:
             fb.write(f"[bold red]Incorrect.[/] Answer: {q.answer}")
-        opts = self.query_one("#quiz-options", Vertical)
-        opts.remove_children()
-        opts.mount(Button("Next Question", id="qopt-next", variant="primary"))
+        self._show_next_button()
 
     def on_button_pressed(self, event) -> None:
         if event.button.id == "close-quiz":
@@ -127,6 +140,9 @@ class QuizScreen(Screen):
         q = self.questions[self.current_index]
 
         if event.button.id == "qopt-reveal":
+            if self._answered:
+                return
+            self._answered = True
             fb = self.query_one("#quiz-feedback", RichLog)
             fb.write(f"[bold]Answer:[/] {q.answer}")
             opts = self.query_one("#quiz-options", Vertical)
@@ -135,6 +151,9 @@ class QuizScreen(Screen):
             opts.mount(Button("No - got it wrong", id="qa-no", variant="error"))
 
         elif event.button.id and event.button.id.startswith("qopt-"):
+            if self._answered:
+                return
+            self._answered = True
             try:
                 choice = int(event.button.id.split("-")[1])
             except (ValueError, IndexError):
@@ -145,20 +164,30 @@ class QuizScreen(Screen):
                 self.correct += 1
             else:
                 fb.write(f"[bold red]Incorrect.[/] Answer: {q.answer}")
-            opts = self.query_one("#quiz-options", Vertical)
-            opts.remove_children()
-            opts.mount(Button("Next Question", id="qopt-next", variant="primary"))
+            self._show_next_button()
 
         elif event.button.id == "qa-yes":
+            if self._advancing:
+                return
+            self._advancing = True
             self.correct += 1
             self.current_index += 1
             self._show_question()
+            self._advancing = False
         elif event.button.id == "qa-no":
+            if self._advancing:
+                return
+            self._advancing = True
             self.current_index += 1
             self._show_question()
+            self._advancing = False
         elif event.button.id == "qopt-next":
+            if self._advancing:
+                return
+            self._advancing = True
             self.current_index += 1
             self._show_question()
+            self._advancing = False
 
 
 class SearchScreen(Screen):
@@ -225,14 +254,21 @@ class HelpScreen(ModalScreen):
         table.add_columns("Key", "Action")
         table.add_rows([
             ("q", "Quit tutorial"),
-            ("F5", "Run git command"),
-            ("Ctrl+P", "Search topics"),
+            ("?", "Open help"),
+            ("Ctrl+B", "Toggle sidebar panel"),
+            ("C", "Toggle content panel"),
+            ("Ctrl+F / Ctrl+P", "Search topics"),
             ("Ctrl+Q", "Start quiz"),
-            ("r", "Reset progress"),
-            ("Escape", "Close current screen"),
+            ("Ctrl+G", "Open cheatsheet"),
+            ("F5", "Run git command"),
+            ("F6", "Show git status"),
+            ("F7", "Show git log"),
+            ("F8", "Show git diff"),
+            ("F9", "Show commit graph"),
+            ("Up / Down", "Previous / Next topic"),
+            ("Left / Right", "Previous / Next section"),
             ("Enter", "Confirm / Next question"),
-            ("Left / Right", "Navigate sections"),
-            ("1-4", "Select quiz answer"),
+            ("Escape", "Close current screen"),
         ])
 
     def action_close(self) -> None:
