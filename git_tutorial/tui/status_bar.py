@@ -15,6 +15,9 @@ class StatusHeader(Widget):
             yield ProgressBar(total=100, id="status-xp-bar", show_eta=False)
             yield Static(id="status-streak")
             yield Static(id="status-topics")
+        with Horizontal(id="keybind-bar"):
+            yield Static("[dim]q:Quit ?:Help Ctrl+G:Cheatsheet Ctrl+Q:Quiz Ctrl+P:Search F5:Run[/]")
+            yield Static(id="nav-hints", markup=True)
 
     def on_mount(self):
         self._update()
@@ -34,6 +37,16 @@ class StatusHeader(Widget):
 
         streak_text = f"Streak {streak}d" if streak else ""
         self.query_one("#status-streak", Static).update(streak_text)
+
+    def update_nav(self, has_prev: bool, has_next: bool) -> None:
+        hints = self.query_one("#nav-hints", Static)
+        parts = []
+        if has_prev:
+            parts.append("[dim]Up:PrevT[/]")
+        if has_next:
+            parts.append("[dim]Down:NextT[/]")
+        parts.append("[dim]Left:PrevS Right:NextS[/]")
+        hints.update(" ".join(parts))
 
     def refresh(self, **kwargs):
         self._update()

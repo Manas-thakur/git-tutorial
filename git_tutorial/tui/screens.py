@@ -241,3 +241,91 @@ class HelpScreen(ModalScreen):
     def on_button_pressed(self, event) -> None:
         if event.button.id == "close-help":
             self.action_close()
+
+
+class CheatSheetScreen(ModalScreen):
+    BINDINGS = [
+        Binding("escape", "close", "Close"),
+        Binding("q", "close", "Close"),
+    ]
+
+    def compose(self) -> ComposeResult:
+        yield Static("[bold cyan]Git Command Cheat Sheet[/]", id="cheat-title")
+        yield DataTable(id="cheat-table")
+        yield Button("Close", id="close-cheat", variant="primary")
+
+    def on_mount(self) -> None:
+        table = self.query_one("#cheat-table", DataTable)
+        table.add_columns("Command", "Description")
+        table.add_rows([
+            ("git init", "Initialize a new repository"),
+            ("git clone <url>", "Clone a remote repository"),
+            ("git clone --depth 1 <url>", "Shallow clone (last commit only)"),
+            ("git status", "Show working tree status"),
+            ("git add <file>", "Stage a file"),
+            ("git add .", "Stage all changes"),
+            ("git commit -m \"msg\"", "Commit staged changes"),
+            ("git commit -am \"msg\"", "Stage and commit tracked files"),
+            ("git commit --amend", "Amend the last commit"),
+            ("git log", "View commit history"),
+            ("git log --oneline --graph", "Compact history graph"),
+            ("git diff", "Show unstaged changes"),
+            ("git diff --staged", "Show staged changes"),
+            ("git diff <commit1> <commit2>", "Compare two commits"),
+            ("git show <commit>", "Show commit details"),
+            ("git restore <file>", "Discard unstaged changes"),
+            ("git restore --staged <file>", "Unstage a file"),
+            ("git reset <commit>", "Reset to a commit (keep changes)"),
+            ("git reset --hard <commit>", "Reset to a commit (discard changes)"),
+            ("git rm <file>", "Remove a file from tracking"),
+            ("git mv <old> <new>", "Rename a file"),
+            ("git branch", "List local branches"),
+            ("git branch <name>", "Create a new branch"),
+            ("git branch -d <name>", "Delete a branch"),
+            ("git switch <branch>", "Switch to a branch"),
+            ("git switch -c <branch>", "Create and switch to a branch"),
+            ("git merge <branch>", "Merge a branch into current"),
+            ("git merge --abort", "Abort a merge with conflicts"),
+            ("git rebase <branch>", "Rebase current branch onto another"),
+            ("git rebase -i HEAD~n", "Interactive rebase (last n commits)"),
+            ("git cherry-pick <commit>", "Apply a commit from another branch"),
+            ("git stash", "Stash uncommitted changes"),
+            ("git stash pop", "Reapply and drop the stash"),
+            ("git stash list", "List stashes"),
+            ("git stash drop", "Drop the top stash"),
+            ("git tag <name>", "Create a lightweight tag"),
+            ("git tag -a <name> -m \"msg\"", "Create an annotated tag"),
+            ("git push", "Push to remote"),
+            ("git push -u origin <branch>", "Push and set upstream"),
+            ("git push --tags", "Push all tags"),
+            ("git fetch", "Fetch from remote (no merge)"),
+            ("git pull", "Fetch and merge from remote"),
+            ("git pull --rebase", "Fetch and rebase instead of merge"),
+            ("git remote -v", "List remotes"),
+            ("git remote add <name> <url>", "Add a remote"),
+            ("git bisect start", "Start binary search for a bug"),
+            ("git bisect bad", "Mark current commit as bad"),
+            ("git bisect good <commit>", "Mark a commit as good"),
+            ("git bisect reset", "End bisect session"),
+            ("git reflog", "Show reference log (recovery)"),
+            ("git gc", "Garbage collect and optimize"),
+            ("git clean -fd", "Remove untracked files/directories"),
+            ("git worktree add <path> <branch>", "Add a worktree"),
+            ("git submodule add <url>", "Add a submodule"),
+            ("git archive -o out.zip HEAD", "Create an archive"),
+            ("git grep <pattern>", "Search files in the repo"),
+            ("git blame <file>", "Show who changed what per line"),
+            ("git shortlog -sn", "Summarize commits per author"),
+            ("git config --global user.name \"X\"", "Set global username"),
+            ("git config --global user.email \"X\"", "Set global email"),
+            ("git config --global alias.<name> <cmd>", "Create an alias"),
+            ("git config --global core.editor <editor>", "Set default editor"),
+            ("git help <command>", "Show help for a command"),
+        ])
+
+    def action_close(self) -> None:
+        self.app.pop_screen()
+
+    def on_button_pressed(self, event) -> None:
+        if event.button.id == "close-cheat":
+            self.action_close()

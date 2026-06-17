@@ -10,7 +10,7 @@ from .sidebar import Sidebar, TopicSelected
 from .content_panel import ContentPanel
 from .terminal_panel import TerminalPanel
 from .status_bar import StatusHeader
-from .screens import QuizScreen, SearchScreen, HelpScreen
+from .screens import QuizScreen, SearchScreen, HelpScreen, CheatSheetScreen
 
 
 class ConfirmScreen(Screen):
@@ -84,11 +84,20 @@ class TutorialApp(App):
 
     StatusHeader {
         dock: bottom;
-        height: 1;
+        height: 2;
     }
 
     StatusHeader > #status-container {
         height: 1;
+    }
+
+    StatusHeader > #keybind-bar {
+        height: 1;
+        width: 100%;
+    }
+
+    #keybind-bar > Static {
+        margin: 0 1;
     }
 
     #status-container > Static {
@@ -97,6 +106,28 @@ class TutorialApp(App):
 
     #status-container > ProgressBar {
         width: 15;
+    }
+
+    #section-nav-buttons {
+        height: 3;
+        align: center middle;
+        margin: 1 0;
+    }
+
+    #section-nav-buttons > Button {
+        margin: 0 1;
+        min-width: 18;
+    }
+
+    #topic-nav-buttons {
+        height: 3;
+        align: center middle;
+        margin: 0 0 1 0;
+    }
+
+    #topic-nav-buttons > Button {
+        margin: 0 1;
+        min-width: 18;
     }
 
     #title-bar {
@@ -118,6 +149,7 @@ class TutorialApp(App):
         Binding("f5", "run_command", "Run", show=True),
         Binding("ctrl+p", "search", "Search", show=True),
         Binding("ctrl+q", "quiz", "Quiz", show=True),
+        Binding("ctrl+g", "cheatsheet", "Cheatsheet", show=True),
         Binding("r", "reset_progress", "Reset", show=False),
         Binding("?", "help", "Help", show=True),
     ]
@@ -163,6 +195,9 @@ class TutorialApp(App):
     def action_help(self) -> None:
         self.push_screen(HelpScreen())
 
+    def action_cheatsheet(self) -> None:
+        self.push_screen(CheatSheetScreen())
+
     def action_reset_progress(self) -> None:
         def on_confirm(confirmed: bool):
             if confirmed:
@@ -185,6 +220,13 @@ class TutorialApp(App):
         self.query_one(TerminalPanel).load_topic(topic)
         self.progress.set_bookmark(phase.number, topic.number)
         self.query_one(StatusHeader).refresh()
+        self._update_nav_hints()
+
+    def _update_nav_hints(self) -> None:
+        panel = self.query_one(ContentPanel)
+        has_prev = panel._get_sibling_topic(-1) is not None
+        has_next = panel._get_sibling_topic(1) is not None
+        self.query_one(StatusHeader).update_nav(has_prev, has_next)
 
 
 def main():
