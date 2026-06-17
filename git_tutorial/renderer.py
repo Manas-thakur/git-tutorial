@@ -7,6 +7,7 @@ from rich.box import ROUNDED
 from rich.prompt import Prompt
 
 from .models import Phase, Topic, Section
+from .themes import TokyoNightStyle
 
 
 console = Console()
@@ -90,7 +91,7 @@ def show_topic_content(topic: Topic, console: Console = console):
                     if not lang:
                         lang = "bash"
                     try:
-                        syntax = Syntax(code.strip(), lang, theme="monokai", line_numbers=False)
+                        syntax = Syntax(code.strip(), lang, theme=TokyoNightStyle, line_numbers=False)
                         console.print(Panel(syntax, border_style="bright_blue"))
                     except Exception:
                         console.print(Panel(code.strip(), border_style="bright_blue"))
