@@ -16,19 +16,29 @@ pip install git+https://github.com/Manas-thakur/git-tutorial.git
 gittut
 ```
 
-A terminal user interface with three panels:
-- **Sidebar** — topic tree with progress bars and phase locking
-- **Content** — markdown viewer with section navigation
-- **Terminal** — interactive git sandbox to practice commands in a real repo
+A terminal user interface with three collapsible panels:
 
-| Key       | Action        |
-|-----------|---------------|
-| `q`       | Quit          |
-| `?`       | Help          |
-| `Ctrl+Q`  | Quiz          |
-| `Ctrl+P`  | Search        |
-| `F5`      | Run command   |
-| `r`       | Reset progress|
+- **Sidebar** — topic tree with progress bars and phase locking (`Ctrl+B` to toggle)
+- **Content** — markdown viewer with topic navigation (`C` to toggle)
+- **Terminal** — interactive git sandbox to practice commands in a real repo, with scenario mode for guided exercises
+
+**Keybindings:**
+
+| Key         | Action             |
+|-------------|--------------------|
+| `q`         | Quit               |
+| `?`         | Help screen        |
+| `Ctrl+B`    | Toggle sidebar     |
+| `Ctrl+F`    | Search topics      |
+| `Ctrl+Q`    | Quiz               |
+| `Ctrl+G`    | Cheat sheet        |
+| `C`         | Toggle content panel|
+| `F5`        | Run command        |
+| `F6`        | Show git status    |
+| `F7`        | Show git log       |
+| `F8`        | Show git diff      |
+| `F9`        | Show commit graph  |
+| `Up`/`Down` | Previous/Next topic|
 
 ### CLI
 
@@ -75,11 +85,11 @@ gittut-cli status
 
 ## Content
 
-32 topics across 6 phases:
+33 topics across 6 phases:
 
 | # | Phase                | Topics |
 |---|----------------------|--------|
-| 1 | Getting Started      | 7      |
+| 1 | Getting Started      | 8      |
 | 2 | Branching & Merging  | 6      |
 | 3 | Remotes              | 5      |
 | 4 | Advanced             | 6      |
@@ -93,9 +103,13 @@ Each topic includes: markdown content with code examples, MCQs, and hands-on exe
 - **Progress tracking** — XP, levels, streaks, badges, bookmarks, per-phase mastery
 - **Phases unlock** sequentially — complete all topics in a phase to unlock the next
 - **Git sandbox** — real git repos created on the fly; practice `add`, `commit`, `branch`, `merge`, `rebase`, and more without touching your real projects
+- **Scenario mode** — guided, step-by-step practice scenarios with validation and hints
+- **Collapsible panels** — hide sidebar or content to give more room to the terminal
+- **Session persistence** — remembers your last topic and panel layout across restarts
 - **96 quiz questions** — multiple-choice across all topics
 - **18 coding challenges** — apply what you've learned in structured exercises
 - **Flashcard review** — reinforce key concepts
+- **Cheat sheet** — 63 git commands searchable from within the TUI (`Ctrl+G`)
 
 ## Compatibility
 
