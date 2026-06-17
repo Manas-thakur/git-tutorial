@@ -199,6 +199,7 @@ class TutorialApp(App):
         Binding("q", "quit", "Quit", show=True),
         Binding("f5", "run_command", "Run", show=True),
         Binding("ctrl+f", "search", "Search", show=True),
+        Binding("ctrl+p", "search", "Search", show=False),
         Binding("ctrl+q", "quiz", "Quiz", show=True),
         Binding("ctrl+g", "cheatsheet", "Cheatsheet", show=True),
         Binding("ctrl+b", "toggle_sidebar", "Sidebar", show=True),
