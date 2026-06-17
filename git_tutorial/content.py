@@ -107,8 +107,13 @@ def discover_phases(content_dir: Optional[Path] = None) -> list[Phase]:
         phase = Phase(number=num, title=title, path=d)
         md_files = sorted(d.glob("*.md"))
         for i, f in enumerate(md_files, start=1):
-            name_parts = f.stem.split(". ", 1)
-            topic_title = name_parts[1] if len(name_parts) > 1 else f.stem
+            stem = f.stem
+            name_parts = stem.split(". ", 1)
+            if len(name_parts) > 1:
+                topic_title = name_parts[1]
+            else:
+                cleaned = re.sub(r"^\d+[- ]", "", stem)
+                topic_title = cleaned.replace("-", " ").strip().title()
             topic = Topic(number=i, title=topic_title, filepath=f)
             text = f.read_text(encoding="utf-8")
             topic.sections = _parse_sections(text)

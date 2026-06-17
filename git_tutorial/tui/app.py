@@ -217,7 +217,7 @@ class TutorialApp(App):
         self.current_phase = phase
         self.current_topic = topic
         self.query_one(ContentPanel).load_topic(topic)
-        self.query_one(TerminalPanel).load_topic(topic)
+        self.query_one(TerminalPanel).load_topic(topic, phase.number)
         self.progress.set_bookmark(phase.number, topic.number)
         self.query_one(StatusHeader).refresh()
         self._update_nav_hints()
