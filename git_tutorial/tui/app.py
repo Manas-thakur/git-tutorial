@@ -144,19 +144,21 @@ class TutorialApp(App):
 
     StatusHeader {
         dock: bottom;
-        height: 2;
+        height: 3;
     }
 
     StatusHeader > #status-container {
         height: 1;
     }
 
-    StatusHeader > #keybind-bar {
+    StatusHeader > #keybind-bar-1,
+    StatusHeader > #keybind-bar-2 {
         height: 1;
         width: 100%;
     }
 
-    #keybind-bar > Static {
+    #keybind-bar-1 > Static,
+    #keybind-bar-2 > Static {
         margin: 0 1;
     }
 

@@ -1,9 +1,8 @@
 from textual.widgets import Static, ProgressBar
-from textual.widget import Widget
-from textual.containers import Horizontal
+from textual.containers import Container, Horizontal
 
 
-class StatusHeader(Widget):
+class StatusHeader(Container):
     def __init__(self, progress, **kwargs):
         super().__init__(**kwargs)
         self.progress = progress
@@ -15,9 +14,11 @@ class StatusHeader(Widget):
             yield ProgressBar(total=100, id="status-xp-bar", show_eta=False)
             yield Static(id="status-streak")
             yield Static(id="status-topics")
-        with Horizontal(id="keybind-bar"):
-            yield Static("[dim]q:Quit ?:Help Ctrl+B:Sidebar C:Content F5:Run[/]")
+        with Horizontal(id="keybind-bar-1"):
+            yield Static("[dim]q:Quit ?:Help Ctrl+B:Side Ctrl+F:Srch Ctrl+Q:Quiz Ctrl+G:Cheat C:Cont[/]")
             yield Static(id="nav-hints", markup=True)
+        with Horizontal(id="keybind-bar-2"):
+            yield Static("[dim]F5:Run F6:Status F7:Log F8:Diff F9:Graph[/]")
 
     def on_mount(self):
         self._update()
